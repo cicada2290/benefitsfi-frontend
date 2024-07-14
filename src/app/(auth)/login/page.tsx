@@ -1,6 +1,6 @@
 'use client'
 
-import { APP_NAME } from '@/config/constants'
+import { APP_NAME } from '@/app/config/constants'
 import { useRouter } from 'next/navigation'
 import {
   Box,

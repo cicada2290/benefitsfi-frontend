@@ -1,0 +1,133 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Blockchain {
+  id        Int       @id @default(autoincrement())
+  name      String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  organizations OrganizationWallet[]
+}
+
+model Organization {
+  id        Int       @id @default(autoincrement())
+  name      String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  departments OrganizationDepartment[]
+  members     OrganizationMember[]
+  wallets     OrganizationWallet[]
+}
+
+model OrganizationDepartment {
+  id             Int       @id @default(autoincrement())
+  organizationId Int
+  name           String
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+
+  Organization Organization @relation(fields: [organizationId], references: [id])
+
+  members OrganizationMember[]
+}
+
+enum MEMBER_STATUS {
+  ACTIVE
+  INACTIVE
+  PENDING
+}
+
+model OrganizationMember {
+  id                       Int           @id @default(autoincrement())
+  organizationId           Int
+  organizationDepartmentId Int?
+  firstName                String
+  lastName                 String
+  position                 String
+  status                   MEMBER_STATUS
+  createdAt                DateTime      @default(now())
+  updatedAt                DateTime      @updatedAt
+  deletedAt                DateTime?
+
+  Organization           Organization            @relation(fields: [organizationId], references: [id])
+  OrganizationDepartment OrganizationDepartment? @relation(fields: [organizationDepartmentId], references: [id])
+
+  wallets           OrganizationMemberWallet[]
+  rewardAllocations OrganizationMemberRewardAllocation[]
+}
+
+model OrganizationMemberRewardAllocation {
+  id                   Int       @id @default(autoincrement())
+  organizationMemberId Int
+  percentage           Int
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  deletedAt            DateTime?
+
+  OrganizationMember OrganizationMember @relation(fields: [organizationMemberId], references: [id])
+}
+
+model Wallet {
+  id        Int       @id @default(autoincrement())
+  address   String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  organizations OrganizationWallet[]
+  members       OrganizationMemberWallet[]
+}
+
+model OrganizationWallet {
+  id             Int       @id @default(autoincrement())
+  blockchainId   Int
+  organizationId Int
+  walletId       Int
+  name           String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+
+  Blockchain   Blockchain   @relation(fields: [blockchainId], references: [id])
+  Organization Organization @relation(fields: [organizationId], references: [id])
+  Wallet       Wallet       @relation(fields: [walletId], references: [id])
+}
+
+model OrganizationMemberWallet {
+  id                   Int       @id @default(autoincrement())
+  organizationMemberId Int
+  walletId             Int
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  deletedAt            DateTime?
+
+  OrganizationMember OrganizationMember @relation(fields: [organizationMemberId], references: [id])
+  Wallet             Wallet             @relation(fields: [walletId], references: [id])
+}
+
+model Token {
+  id        Int       @id @default(autoincrement())
+  name      String
+  symbol    String
+  address   String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+}

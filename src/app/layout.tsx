@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { fonts } from './fonts'
-import { APP_NAME } from '@/config/constants'
+import { APP_NAME } from '@/app/config/constants'
 
 export const metadata: Metadata = {
   title: APP_NAME,
